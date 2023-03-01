@@ -192,6 +192,13 @@ spec:
       labels:
         k8s-app: kubernetes-dashboard
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/agent
+                operator: DoesNotExist
       securityContext:
         seccompProfile:
           type: RuntimeDefault
@@ -219,7 +226,7 @@ spec:
               name: tmp-volume
           livenessProbe:
             httpGet:
-              scheme: HTTPS
+              scheme: HTTP
               path: /
               port: 9090
             initialDelaySeconds: 30
@@ -236,8 +243,6 @@ spec:
         - name: tmp-volume
           emptyDir: {}
       serviceAccountName: kubernetes-dashboard
-      nodeSelector:
-        "kubernetes.io/os": linux
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
@@ -279,6 +284,13 @@ spec:
       labels:
         k8s-app: dashboard-metrics-scraper
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/agent
+                operator: DoesNotExist
       securityContext:
         seccompProfile:
           type: RuntimeDefault
@@ -304,8 +316,6 @@ spec:
             runAsUser: 1001
             runAsGroup: 2001
       serviceAccountName: kubernetes-dashboard
-      nodeSelector:
-        "kubernetes.io/os": linux
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master

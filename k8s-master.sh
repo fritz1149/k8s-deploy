@@ -23,5 +23,5 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 systemctl enable kubelet
 
-kubectl taint node master2015 node-role.kubernetes.io/master-
+kubectl taint node vm-0 node-role.kubernetes.io/master-
 ./keadm init --set cloudCore.modules.dynamicController.enable=true
