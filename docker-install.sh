@@ -14,5 +14,13 @@ systemctl enable docker
 echo '{
     "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
 }' > /etc/docker/daemon.json
+mkdir -p /etc/systemd/system/docker.service.d
+echo '{
+    [Service]
+    Environment="HTTP_PROXY=http://host:10809/"
+    Environment="HTTPS_PROXY=http://host:10809/"
+    Environment="NO_PROXY=localhost,127.0.0.1"
+}' > /etc/systemd/system/docker.service.d/proxy.conf
+echo '172.18.101.1 host' >> /etc/hosts
 systemctl daemon-reload
 systemctl restart docker
