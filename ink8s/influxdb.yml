@@ -1,0 +1,89 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: influx
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: influx-pv-1
+  namespace: influx
+  labels:
+    type: hostpath
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/home/fritz/influx/data"
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: influx-pvc-1
+  namespace: influx
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: influx-deployment
+  namespace: influx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influx
+  template:
+    metadata:
+      labels:
+        app: influx
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm-1
+      containers:
+        - name: influx-pod
+          image: influxdb:1.7.9
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 8086
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /var/lib/influxdb
+            name: influxdata
+      volumes:
+      - name: influxdata
+        persistentVolumeClaim:
+          claimName: influx-pvc-1
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: influx-svc
+  namespace: influx
+  labels:
+    name: influx
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    targetPort: 8086
+    port: 8086
+  selector:
+    name: influx
+
+---

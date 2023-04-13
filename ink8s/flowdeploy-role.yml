@@ -1,0 +1,22 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ircp-workflow-default-ClusterRole
+rules:
+  - apiGroups: ["", "rbac.authorization.k8s.io", "apps"]
+    resources: ["namespaces", "deployments", "services", "roles", "rolebindings", "configmaps", "pods"]
+    verbs: ["get", "watch", "list", "patch", "create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ircp-workflow-default-ClusterRoleBinding
+subjects:
+  - kind: ServiceAccount
+    name: default
+    # apiGroup: "rbac.authorization.k8s.io"
+    namespace: ircp-workflow
+roleRef:
+  kind: ClusterRole
+  name: ircp-workflow-default-ClusterRole
+  apiGroup: rbac.authorization.k8s.io

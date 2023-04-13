@@ -1,0 +1,94 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: pgsql
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pqsql-pv-1
+  namespace: pgsql
+  labels:
+    type: hostpath
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/home/ivic/pgsql/data"
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pgsql-pvc-1
+  namespace: pgsql
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: pgsql-deployment
+  namespace: pgsql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgsql
+  template:
+    metadata:
+      labels:
+        app: pgsql
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm-1
+      containers:
+        - name: pgsql-pod
+          image: postgres:15
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          env:
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+            - name: POSTGRES_USER
+              value: "admin"
+            - name: POSTGRES_DATABASE
+              value: "test"
+            - name: POSTGRES_PASSWORD
+              value: "123456"
+            - name: POSTGRES_ROOT_PASSWORD
+              value: "123456"
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgredb
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: pgsql-pvc-1
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: pgsql-service
+  namespace: pgsql
+spec:
+  type: NodePort
+  selector:
+    app: pgsql
+  ports:
+    - port: 5432
+      targetPort: 5432

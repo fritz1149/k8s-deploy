@@ -1,0 +1,86 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: acbot-backend
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: info-management-cm
+  namespace: acbot-backend
+data:
+  application.yml: |+
+    spring:
+      cloud:
+        kubernetes:
+          reload:
+            enabled: true
+      datasource:
+        url: jdbc:postgresql://pgsql-service.pgsql:5432/robots?currentSchema=public&serverTimezone=UTC&characterEncoding=utf-8
+        driverClassName: org.postgresql.Driver
+        username: admin
+        password: 123456
+      influx:
+        url: http://influx-svc.influx:8086
+        # url: http://10.106.104.141:8086
+        user: admin
+        password: 20011013cc
+        database: robots
+    mybatis:
+      mapper-locations: classpath*:/mapper/*Mapper.xml
+    server:
+      port: 8081
+    management:
+      health:
+        redis:
+          enabled: false
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: info-management
+  namespace: acbot-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: info-management
+  template:
+    metadata:
+      labels:
+        app: info-management
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm-1
+      containers:
+        - name: info-management-pod
+          image: harbor.acbot.net/acbot/backend/info-management:v0.1.0-alpha.2102051
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - mountPath: /root/config
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: info-management-cm
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: info-management
+  namespace: acbot-backend
+  # labels:
+  #   service.edgemesh.kubeedge.io/service-proxy-name: ""
+spec:
+  type: NodePort
+  selector:
+    app: info-management
+  ports:
+  - port: 8081
+    targetPort: 8081

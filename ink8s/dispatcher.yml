@@ -1,0 +1,171 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: acbot-edge
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: monitor-cm
+  namespace: acbot-edge
+data:
+  profile.toml: |+
+    [dispatcher]
+    server_address = "10.101.74.248:3000"
+    
+    [monitor]
+    interval = 5
+    monitor_type = "NetEdge"
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dispatcher-cm
+  namespace: acbot-edge
+data:
+  profile.toml: |+
+    info_management_address = "info-management.acbot-backend:8081"
+    flowdeploy_backend_address = "flowdeploy-backend.ircp-workflow:80"
+  monitor.yml: |+
+    kind: DaemonSet
+    apiVersion: apps/v1
+    metadata:
+      name: monitor
+      namespace: acbot-edge
+    spec:
+      selector:
+        matchLabels:
+          app: monitor
+      template:
+        metadata:
+          labels:
+            app: monitor
+        spec:
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
+          nodeSelector:
+            node_type: non-leaf
+          containers:
+            - name: monitor
+              image: 19231149/monitor:latest
+              imagePullPolicy: IfNotPresent
+              args:
+                - '$(NODE_NAME)'
+              env:
+                - name: NODE_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: spec.nodeName
+              ports:
+                - containerPort: 5201
+              volumeMounts:
+                - mountPath: /app/resources
+                  name: config
+          volumes:
+            - name: config
+              configMap:
+                name: monitor-cm
+  iperf-server.yml: |+
+    kind: DaemonSet
+    apiVersion: apps/v1
+    metadata:
+      name: iperf-server
+      namespace: acbot-edge
+    spec:
+      selector:
+        matchLabels:
+          app: iperf-server
+      template:
+        metadata:
+          labels:
+            app: iperf-server
+        spec:
+          hostNetwork: true
+          dnsPolicy: ClusterFirstWithHostNet
+          nodeSelector:
+            node_type: leaf
+          containers:
+            - name: iperf-server
+              image: networkstatic/iperf3:latest
+              imagePullPolicy: IfNotPresent
+              args: ["-s"]
+              ports:
+                - containerPort: 5201
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: dispatcher-pv-1
+  namespace: acbot-edge
+  labels:
+    type: hostpath
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/fritz/pv/dispatcher/"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: dispatcher-pvc-1
+  namespace: acbot-edge
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: dispatcher
+  namespace: acbot-edge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dispatcher
+  template:
+    metadata:
+      labels:
+        app: dispatcher
+    spec:
+      serviceAccountName: acbot-edge-dispatcher
+      nodeSelector:
+        kubernetes.io/hostname: vm-1
+      containers:
+        - name: dispatcher
+          image: 19231149/dispatcher:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /app/resources
+              name: config
+            - mountPath: /app/sqlite
+              name: sqlite
+      volumes:
+        - name: config
+          configMap:
+            name: dispatcher-cm
+        - name: sqlite
+          persistentVolumeClaim:
+            claimName: dispatcher-pvc-1
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dispatcher
+  namespace: acbot-edge
+spec:
+  type: NodePort
+  selector:
+    app: dispatcher
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 32445
