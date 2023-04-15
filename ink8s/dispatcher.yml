@@ -26,6 +26,7 @@ data:
   profile.toml: |+
     info_management_address = "info-management.acbot-backend:8081"
     flowdeploy_backend_address = "flowdeploy-backend.ircp-workflow:80"
+    pgsql_address = "postgresql://admin:123456@pgsql-service.pgsql:5432/robots?currentSchema=public&serverTimezone=UTC&characterEncoding=utf-8"
   monitor.yml: |+
     kind: DaemonSet
     apiVersion: apps/v1

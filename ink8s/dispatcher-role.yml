@@ -59,3 +59,28 @@ roleRef:
   kind: ClusterRole
   name: node-labeler
   apiGroup: rbac.authorization.k8s.io
+---
+# 删除namespace的能力
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ns-deleter
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "delete"]
+---
+# 绑定ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ns-deleter-dispatcher
+subjects:
+  - kind: ServiceAccount
+    name: acbot-edge-dispatcher
+    apiGroup: ""
+    namespace: acbot-edge
+roleRef:
+  kind: ClusterRole
+  name: ns-deleter
+  apiGroup: rbac.authorization.k8s.io

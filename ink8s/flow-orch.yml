@@ -20,8 +20,7 @@ data:
           reload:
             enabled: true
       datasource:
-        # url: jdbc:postgresql://pgsql-service.pgsql:5432/robots?currentSchema=robots&serverTimezone=UTC&characterEncoding=utf-8
-        url: jdbc:postgresql://10.108.114.4:5432/robots?currentSchema=robots&serverTimezone=UTC&characterEncoding=utf-8
+        url: jdbc:postgresql://pgsql-service.pgsql:5432/robots?currentSchema=public&serverTimezone=UTC&characterEncoding=utf-8
         driverClassName: org.postgresql.Driver
         username: admin
         password: 123456
@@ -33,7 +32,9 @@ data:
       health:
         redis:
           enabled: false
-
+    acbot:
+      cloud:
+        uuid: test
 ---
 
 kind: Deployment
@@ -51,6 +52,8 @@ spec:
       labels:
         app: floworch
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: vm-1
       containers:
         - name: floworch-pod
           image: harbor.acbot.net/acbot/backend/flow-orchestration:v0.1.0-alpha.2102051
