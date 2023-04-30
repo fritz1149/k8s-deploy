@@ -580,7 +580,8 @@ server:
     loadBalancerSourceRanges: []
     servicePort: 80
     sessionAffinity: None
-    type: ClusterIP
+    # type: ClusterIP
+    type: NodePort
 
     ## Enable gRPC port on service to allow auto discovery with thanos-querier
     gRPC:
@@ -641,6 +642,34 @@ serverFiles:
       - /etc/config/alerts
 
     scrape_configs:
+      - job_name: 'workflow-operators'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_prometheus]
+            action: keep
+            regex: 'workflow'
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: 'metrics'
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: keep
+            regex: 'operator'
+          - action: replace
+            target_label: __scheme__
+            replacement: 'http'
+          - source_labels: [__meta_kubernetes_pod_label_instanceUUID]
+            action: replace
+            target_label: instanceUUID
+          - source_labels: [__meta_kubernetes_pod_label_opID]
+            action: replace
+            target_label: opID
+          - source_labels: [ __address__, __meta_kubernetes_pod_container_port_number]
+            action: replace
+            regex: (.+):(?:\d+);(\d+)
+            replacement: ${1}:${2}
+            target_label: __address__
+
       - job_name: prometheus
         static_configs:
           - targets:
