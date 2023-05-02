@@ -9,8 +9,8 @@ docker pull eclipse-mosquitto:1.6.15
 docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy:v1.20.15
 docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy:v1.20.15 k8s.gcr.io/kube-proxy:v1.20.15
 docker rmi registry.cn-hangzhou.aliyuncs.com/google_containers/kube-proxy:v1.20.15
-token=efed2a6f778ef61f618dddbcc566da5e379340d2d8e5d96c5ae2d0efdcaaf4cb.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Nzc2ODQ4MzJ9.4HkxspUKHuXXDIvrB83dOzI-lNmll5Y6kMl0dpaC-_I
-cloud=172.18.101.2
+token=ad020fc93d92af233ad908148e390a439a3577643156ff4b6950895a0354b025.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODMwMjI4NTJ9.i5w08ybbAXvjjURnKmZQPzVCz1C7omSby6xvRKp-vQU
+cloud=192.168.137.3
 chmod +x keadm
 ./keadm join --cloudcore-ipport=$cloud:10000 --token=$token 
 

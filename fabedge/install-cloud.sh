@@ -1,0 +1,14 @@
+./quickstart.sh \
+	--cluster-name cloud  \
+	--cluster-role host \
+	--cluster-zone beijing  \
+	--cluster-region china \
+    --cni-type flannel \
+	--connectors vm-1 \
+	--edges vm-2,vm-3,vm-4 \
+    --cluster-cidr 10.244.0.0/16 \
+	--connector-public-addresses 192.168.137.3 \
+    --service-cluster-ip-range 10.96.0.0/12\
+	--chart fabedge/fabedge \
+    --enable-dns true \
+    --enable-proxy true

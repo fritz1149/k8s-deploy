@@ -1,0 +1,9 @@
+apiVersion: fabedge.io/v1alpha1
+kind: Community
+metadata:
+  name: community-1
+spec:
+  members:
+    - cloud.vm-2
+    - cloud.vm-3
+    - cloud.vm-4
