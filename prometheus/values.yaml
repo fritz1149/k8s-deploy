@@ -644,31 +644,60 @@ serverFiles:
     scrape_configs:
       - job_name: 'workflow-operators'
         kubernetes_sd_configs:
-          - role: pod
+          - role: service
+        scrape_interval: 15s
         relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_prometheus]
+          - source_labels: [__meta_kubernetes_service_label_prometheus]
             action: keep
             regex: 'workflow'
-          - source_labels: [__meta_kubernetes_pod_container_port_name]
+          - source_labels: [__meta_kubernetes_service_port_name]
             action: keep
-            regex: 'metrics'
-          - source_labels: [__meta_kubernetes_pod_container_name]
-            action: keep
-            regex: 'operator'
-          - action: replace
-            target_label: __scheme__
-            replacement: 'http'
-          - source_labels: [__meta_kubernetes_pod_label_instanceUUID]
+            regex: 'operator-metrics'
+          - source_labels: [__meta_kubernetes_service_label_instanceUUID]
             action: replace
             target_label: instanceUUID
-          - source_labels: [__meta_kubernetes_pod_label_opID]
+          - source_labels: [__meta_kubernetes_service_label_opID]
             action: replace
             target_label: opID
-          - source_labels: [ __address__, __meta_kubernetes_pod_container_port_number]
+
+      - job_name: 'workflow-streams'
+        kubernetes_sd_configs:
+          - role: service
+        scrape_interval: 15s
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_label_prometheus]
+            action: keep
+            regex: 'workflow'
+          - source_labels: [__meta_kubernetes_service_port_name]
+            action: keep
+            regex: 'rabbitmq-metrics'
+          - source_labels: [__meta_kubernetes_service_label_instanceUUID]
             action: replace
-            regex: (.+):(?:\d+);(\d+)
-            replacement: ${1}:${2}
-            target_label: __address__
+            target_label: instanceUUID
+          - source_labels: [__meta_kubernetes_service_label_opID]
+            action: replace
+            target_label: opID
+          - action: replace
+            replacement: '/metrics/detailed'
+            target_label: __metrics_path__
+          - action: replace
+            replacement: 'channel_queue_exchange_metrics'
+            target_label: __param_family
+          - source_labels: [queue]
+            action: replace
+            target_label: outstream
+      
+      - job_name: 'prometheus-pushgateway'
+        honor_labels: true
+
+        kubernetes_sd_configs:
+          - role: service
+        scrape_interval: 15s
+
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
+            action: keep
+            regex: pushgateway
 
       - job_name: prometheus
         static_configs:
@@ -917,17 +946,6 @@ serverFiles:
             action: replace
             target_label: node
 
-      - job_name: 'prometheus-pushgateway'
-        honor_labels: true
-
-        kubernetes_sd_configs:
-          - role: service
-
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
-            action: keep
-            regex: pushgateway
-
       # Example scrape config for probing services via the Blackbox Exporter.
       #
       # The relabeling allows the actual service scrape endpoint to be configured
@@ -1167,7 +1185,7 @@ prometheus-node-exporter:
 prometheus-pushgateway:
   ## If false, pushgateway will not be installed
   ##
-  enabled: false
+  enabled: true
 
   # Optional service annotations
   serviceAnnotations:

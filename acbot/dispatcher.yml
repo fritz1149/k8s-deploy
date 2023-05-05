@@ -13,6 +13,9 @@ data:
     [dispatcher]
     server_address = "10.101.74.248:3000"
     
+    [prometheus]
+    pushgateway_address = "10.107.75.43:80"
+
     [monitor]
     interval = 5
     monitor_type = "NetEdge"

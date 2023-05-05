@@ -35,6 +35,7 @@ data:
     acbot:
       cloud:
         uuid: test
+    prometheus: http://prometheus-server.monitoring:80
 ---
 
 kind: Deployment

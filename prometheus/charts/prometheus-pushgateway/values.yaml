@@ -168,7 +168,7 @@ tolerations: {}
 ## Node labels for pushgateway pod assignment
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##
-nodeSelector: {}
+nodeSelector: { "pos": "cloud" }
 
 replicaCount: 1
 
