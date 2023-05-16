@@ -14,11 +14,10 @@ data:
     server_address = "10.101.74.248:3000"
     
     [prometheus]
-    pushgateway_address = "10.107.75.43:80"
+    pushgateway_address = "10.102.58.68:9091"
 
     [monitor]
-    interval = 5
-    monitor_type = "NetEdge"
+    interval = 15
 ---
 kind: ConfigMap
 apiVersion: v1
