@@ -4,5 +4,5 @@ cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
 EOF
 apt-get update
-apt-get install -y kubelet=1.20.1-00 kubeadm=1.20.1-00 kubectl=1.20.1-00
+apt-get install -y kubelet=1.22.17-00 kubeadm=1.22.17-00 kubectl=1.22.17-00
 sudo systemctl enable kubelet && sudo systemctl start kubelet
