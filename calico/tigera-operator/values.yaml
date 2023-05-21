@@ -1,0 +1,68 @@
+imagePullSecrets: {}
+
+edgeDontScheduled: &edgeDontScheduled
+  spec:
+    template:
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: node-role.kubernetes.io/edge
+                  operator: DoesNotExist
+
+installation:
+  enabled: true
+  kubernetesProvider: ""
+  calicoNodeDaemonSet: *edgeDontScheduled
+  # csiNodeDriverDaemonSet: *edgeDontScheduled
+  calicoKubeControllersDeployment: *edgeDontScheduled
+  typhaDeployment: *edgeDontScheduled
+  kubeletVolumePluginPath: None
+
+apiServer:
+  enabled: true
+  apiServerDeployment: *edgeDontScheduled
+
+certs:
+  node:
+    key:
+    cert:
+    commonName:
+  typha:
+    key:
+    cert:
+    commonName:
+    caBundle:
+
+# Resource requests and limits for the tigera/operator pod.
+resources: {}
+
+# Tolerations for the tigera/operator pod.
+tolerations:
+- effect: NoExecute
+  operator: Exists
+- effect: NoSchedule
+  operator: Exists
+
+
+# NodeSelector for the tigera/operator pod.
+nodeSelector:
+  kubernetes.io/os: linux
+  kubernetes.io/hostname: cloud-0
+
+# Custom annotations for the tigera/operator pod.
+podAnnotations: {}
+
+# Custom labels for the tigera/operator pod.
+podLabels: {}
+
+# Image and registry configuration for the tigera/operator pod.
+tigeraOperator:
+  image: tigera/operator
+  version: v1.29.3
+  registry: quay.io
+calicoctl:
+  image: docker.io/calico/ctl
+  tag: v3.25.1
