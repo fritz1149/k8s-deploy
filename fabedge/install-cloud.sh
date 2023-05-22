@@ -1,10 +1,10 @@
 ./quickstart.sh \
-	--cluster-name cloud  \
+	--cluster-name cluster-0  \
 	--cluster-role host \
 	--cluster-zone beijing  \
 	--cluster-region china \
     --cni-type calico \
-	--connectors vm-1 \
+	--connectors cloud-1 \
 	--edges vm-2,vm-3,vm-4 \
     --edge-pod-cidr 10.233.0.0/16 \
     --cluster-cidr 10.244.0.0/16 \
