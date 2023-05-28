@@ -14,14 +14,10 @@ data:
         enable: true
       edgeTunnel:
         enable: true
-        #relayNodes:
-        #- nodeName: <your relay node name1>
-        #  advertiseAddress:
-        #  - 1.1.1.1
-        #- nodeName: <your relay node name2>
-        #  advertiseAddress:
-        #  - 2.2.2.2
-        #  - 3.3.3.3
+        relayNodes:
+        - nodeName: vm-1
+          advertiseAddress:
+          - 192.168.137.3
 ---
 apiVersion: v1
 kind: ConfigMap
