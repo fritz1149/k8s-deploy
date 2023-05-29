@@ -1,0 +1,8 @@
+alias k='kubectl'
+alias kg='kubectl get'
+alias ka='kubectl apply'
+alias kc='kubectl create'
+alias kd='kubectl describe'
+alias kl='kubectl logs'
+alias w='watch '
+alias wp='watch kubectl get pods -A'

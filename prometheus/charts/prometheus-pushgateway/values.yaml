@@ -168,7 +168,7 @@ tolerations: {}
 ## Node labels for pushgateway pod assignment
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##
-nodeSelector: { "pos": "cloud" }
+nodeSelector: {}
 
 replicaCount: 1
 
@@ -195,7 +195,13 @@ containerSecurityContext: {}
 
 ## Affinity for pod assignment
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-affinity: {}
+affinity: 
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: node-role.kubernetes.io/edge
+          operator: DoesNotExist
 
 ## Topology spread constraints for pods
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
