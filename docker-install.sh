@@ -11,16 +11,15 @@ apt install -y docker-ce
 apt install -y docker-compose
 #将docker设置为开机自启
 systemctl enable docker
-echo '{
-    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
-}' > /etc/docker/daemon.json
+# echo '{
+#     "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+# }' > /etc/docker/daemon.json
 mkdir -p /etc/systemd/system/docker.service.d
 echo '{
     [Service]
-    Environment="HTTP_PROXY=http://host.docker.internal:10809/"
-    Environment="HTTPS_PROXY=http://host.docker.internal:10809/"
+    Environment="HTTP_PROXY=http://172.16.49.1:10811/"
+    Environment="HTTPS_PROXY=http://172.16.49.1:10811/"
     Environment="NO_PROXY=localhost,127.0.0.1"
 }' > /etc/systemd/system/docker.service.d/proxy.conf
-# echo '172.18.101.1 host' >> /etc/hosts
 systemctl daemon-reload
 systemctl restart docker

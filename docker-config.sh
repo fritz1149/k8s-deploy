@@ -1,5 +1,5 @@
 echo '{
- "exec-opts":["native.cgroupdriver=systemd"]
+ "exec-opts":["native.cgroupdriver=cgroupfs"]
 }' > /etc/docker/daemon.json
 
 systemctl daemon-reload

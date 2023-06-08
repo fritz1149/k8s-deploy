@@ -8,5 +8,5 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 sudo systemctl enable kubelet
 
-# kubectl taint node vm-0 node-role.kubernetes.io/master-
+kubectl taint node cloud-0 node-role.kubernetes.io/master-
 # ./keadm init --set cloudCore.modules.dynamicController.enable=true --advertise-address=10.0.0.82
